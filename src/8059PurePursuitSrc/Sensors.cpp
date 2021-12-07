@@ -20,8 +20,8 @@ void Sensors(void * ignore){
     encdR = encoderR.get_value();
     bearing = imu.is_calibrating()? 0 : -imu.get_rotation();
     angle = boundRad(halfPI - bearing*toRad);
-    measuredVL = (FL.get_voltage() + BL.get_voltage())/2*voltageToPower*powerToInPerMs;
-    measuredVR = (FR.get_voltage() + BR.get_voltage())/2*voltageToPower*powerToInPerMs;
+    measuredVL = (FL.get_actual_velocity() + BL.get_actual_velocity())/2 * RPMToInPerMs;
+    measuredVR = (FR.get_actual_velocity() + BR.get_actual_velocity())/2 * RPMToInPerMs;;
     measuredV = (measuredVL + measuredVR)/2;
     delay(dT);
   }

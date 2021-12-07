@@ -71,7 +71,8 @@ void Path::calcCurvature(){
 }
 void Path::calcMaxV(){
   for(int i = 0;i<n;++i){
-    maxV.push_back(std::min(MAXV, K/curv[i]));
+    // printf("MaxV: %.5f, Curve: %.5f\n", globalMaxV, K/curv[i]);
+    maxV.push_back(std::min(globalMaxV, K/curv[i]));
   }
   // printVector(maxV);
 }
@@ -81,7 +82,7 @@ void Path::calcTargV(){
   targV[n-1] = 0;
   for(int i = n-2;i>=0;--i){
     double d = distance(smoWps[i+1], smoWps[i]);
-    targV[i] = std::min(maxV[i], sqrt(targV[i+1]*targV[i+1] + 2 * MAXA * d));
+    targV[i] = std::min(maxV[i], sqrt(targV[i+1]*targV[i+1] + 2 * globalMaxA * d));
   }
 }
 void Path::setWps(std::vector<Node> p_wps, double p_w_data, double p_w_smooth, double p_lookAhead){

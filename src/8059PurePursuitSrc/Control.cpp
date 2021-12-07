@@ -1,7 +1,7 @@
 #include "main.h"
-#define kV 0.95
-#define kA 0
-#define kP 0
+#define kV 3978
+#define kA 50000
+#define kP 1000
 Path path;
 
 void drive(double l, double r){
@@ -103,8 +103,9 @@ void PPControl(void * ignore){
      */
     double targVClosest = path.getTargV(closestPointIndex);
     // rate limiter
-    targV = targV + abscap(targVClosest, MAXA); //might use v + abscap instead of targV + abscap?
-    if(count % 10 == 0) printf("TargV: %.5f\n", targV);
+    // targV = targV + abscap(targVClosest, globalMaxA); //might use v + abscap instead of targV + abscap?
+    targV = targVClosest;
+    if(count % 10 == 0) printf("TargV: %.5f, MAXV: %.5f\n", targV, globalMaxV);
     targVL = targV*(2 + moveCurvature*baseWidth)/2;
     targVR = targV*(2 - moveCurvature*baseWidth)/2;
     if(count % 10 == 0) printf("Move Curvature: %.5f\n", moveCurvature);
@@ -123,8 +124,8 @@ void PPControl(void * ignore){
     double fbR = kP * (targVR - measuredVR);
 
     // set power
-    if(count % 10 == 0) printf("PowerL: %4.2f\tPowerR: %4.2f\n", (ffL + fbL)/powerToInPerMs, (ffR + fbR)/powerToInPerMs);
-    drive((ffL + fbL)/powerToInPerMs, (ffR + fbR)/powerToInPerMs);
+    if(count % 10 == 0) printf("PowerL: %4.2f\tPowerR: %4.2f\n", (ffL + fbL), (ffR + fbR));
+    drive((ffL + fbL), (ffR + fbR));
     // handling prev
     prevTargVL = targVL;
     prevTargVR = targVR;

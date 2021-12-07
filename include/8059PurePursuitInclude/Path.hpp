@@ -3,18 +3,26 @@
 #include "Node.hpp"
 #include <vector>
 #define inPerDeg 0.024182854666401 //use baseOdom to tune?
-#define powerToDegsPerMs 0.0104 //empirical use excel
-#define powerToInPerMs (powerToDegsPerMs * inPerDeg)
-#define voltageToPower 127/12000
-#define MAXPOWV 20.0 //power
-#define MAXPOWA 1 //.5 power every ms
+// #define powerToDegsPerMs 0.0104 //empirical use excel
+// #define powerToInPerMs (powerToDegsPerMs * inPerDeg)
 
-#define MAXV MAXPOWV*powerToInPerMs
-#define MAXA MAXPOWA*powerToInPerMs
+#define RPMToInPerMs 1/60/1000*360*inPerDeg
+#define MAXRPMV 100.0
+#define MAXRPMA .1
+
+#define voltageToPower 127/12000
+// #define MAXPOWV 20.0 //power
+// #define MAXPOWA 1 //.5 power every ms
+
+// #define MAXV MAXPOWV*powerToInPerMs
+// #define MAXA MAXPOWA*powerToInPerMs
+#define globalMaxV MAXRPMV * RPMToInPerMs
+#define globalMaxA MAXRPMA * RPMToInPerMs
+
 //INJECT
-#define SPACING .5
+#define SPACING 1
 //SMOOTH
-#define TOLERANCE 0.0001
+#define TOLERANCE 0.001
 //MAXV
 #define K 0.005
 class Path{
