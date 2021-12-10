@@ -1,4 +1,5 @@
 #include "main.h"
+
 Path::Path(): wps{}
 {}
 Path::Path(std::vector<Node> p_wps): wps{p_wps}
@@ -98,6 +99,7 @@ void Path::setWps(std::vector<Node> p_wps, double p_w_data, double p_w_smooth, d
   this->calcMaxV();
   this->calcTargV();
 
+  enablePP = true;
   printf("Path: \n");
   for(int i = 0; i < n; i++) debugPoint(i);
 }
