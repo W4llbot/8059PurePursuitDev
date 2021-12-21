@@ -58,18 +58,18 @@ void competition_initialize() {}
  */
 void autonomous() {
 	std::vector<Node> testPath = {Node(0, 0), Node(0, 12), Node(12, 24), Node(24, 36), Node(24, 48)};
-	std::vector<Node> moveTurnPath = {Node(0, 0), Node(0, 24), Node(24, 36)};
+	std::vector<Node> moveTurnPath = {Node(0, 0), Node(0, 24), Node(48, 48)};
+	std::vector<Node> reverseMoveTurnPath = {Node(48, 48), Node(24, 24), Node(0, 0)};
 	std::vector<Node> straightPath = {Node(0, 0), Node(0, -24), Node(24, -36)};
-	std::vector<Node> reverseMoveTurnPath = {Node(24, 36), Node(0, 24), Node(0, 0)};
   double smooth = 0.75;
 	Task controlTask(PPControl, (void*)"PROS", TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "PP Task");
 
-	basePP(moveTurnPath, 1-smooth, smooth, 12, false);
+	basePP(moveTurnPath, 1-smooth, smooth, 20, false);
 	waitPP(100000);
 
 	delay(2000);
 
-	basePP(reverseMoveTurnPath, 1-smooth, smooth, 12, true);
+	basePP(reverseMoveTurnPath, 1-smooth, smooth, 20, true);
 	waitPP(100000);
 }
 

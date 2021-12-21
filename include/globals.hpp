@@ -6,7 +6,7 @@
 #define FRPort 1
 #define BRPort 10
 
-#define encdL_port 7
+#define encdS_port 7
 #define encdR_port 1
 #define imuPort 14
 

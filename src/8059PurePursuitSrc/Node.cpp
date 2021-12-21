@@ -26,7 +26,7 @@ void Node::setXY(double x, double y){
   this -> y = y;
 }
 void Node::print(){
-  printf("X: %.2f Y: %.2f\n", x, y);
+  printf("{%.2f Y: %.2f}", x, y);
 }
 double Node::mag(){
   return sqrt(pow(this-> x, 2) + pow(this-> y, 2));

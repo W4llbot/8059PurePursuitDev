@@ -54,7 +54,7 @@ void PPControl(void * ignore){
   int count = 0;
 
   while(true){
-    if(count % 10 == 0) printf("status: %s\n", (enablePP? "enabled": "disabled"));
+    if(count % 10 == 0) printf("status: %s\t", (enablePP? "enabled": "disabled"));
 
     if(enablePP) {
       // FIND CLOSEST POINT
@@ -67,9 +67,9 @@ void PPControl(void * ignore){
         }
       }
       if(count % 10 == 0) {
-        printf("closest point: \n");
-        // path.getSmoWp(closestPointIndex).print();
-        path.debugPoint(closestPointIndex);
+        printf("Pt on path: ");
+        path.getSmoWp(closestPointIndex).print();
+        // path.debugPoint(closestPointIndex);
       }
 
       // ===================================================================================
@@ -93,9 +93,10 @@ void PPControl(void * ignore){
       }
 
       if(count % 10 == 0) {
-        printf("Curr point:");
+        printf("\tCurr: ");
         position.print();
-        printf("look ahead point:");
+
+        printf(" Bearing: %.2f\tlook ahead point:", bearing*toDeg);
         lookAheadNode.print();
       }
 
@@ -125,11 +126,11 @@ void PPControl(void * ignore){
       // rate limiter
       // targV = targV + abscap(targVClosest, globalMaxA); //might use v + abscap instead of targV + abscap?
       targV = targVClosest;
-      if(count % 10 == 0) printf("TargV: %.5f, MAXV: %.5f\n", targV, globalMaxV);
+      // if(count % 10 == 0) printf("TargV: %.5f, MAXV: %.5f\n", targV, globalMaxV);
       targVL = targV*(2 + moveCurvature*baseWidth)/2;
       targVR = targV*(2 - moveCurvature*baseWidth)/2;
-      if(count % 10 == 0) printf("Move Curvature: %.5f\n", moveCurvature);
-      if(count % 10 == 0) printf("TargVL: %.5f\tTargVR: %.5f\n", targVL, targVR);
+      if(count % 10 == 0) printf("\tMove Curvature: %.5f", moveCurvature*1000);
+      // if(count % 10 == 0) printf("TargVL: %.5f\tTargVR: %.5f\n", targVL, targVR);
 
       // ===================================================================================
 
@@ -153,10 +154,10 @@ void PPControl(void * ignore){
 
       // set power
       if(reverse) {
-        if(count % 10 == 0) printf("PowerL: %4.2f\tPowerR: %4.2f\n", (ffR + fbR), (ffL + fbL));
+        // if(count % 10 == 0) printf("PowerL: %4.2f\tPowerR: %4.2f\n", (ffR + fbR), (ffL + fbL));
         drive((ffR + fbR), (ffL + fbL));
       }else {
-        if(count % 10 == 0) printf("PowerL: %4.2f\tPowerR: %4.2f\n", (ffL + fbL), (ffR + fbR));
+        // if(count % 10 == 0) printf("PowerL: %4.2f\tPowerR: %4.2f\n", (ffL + fbL), (ffR + fbR));
         drive((ffL + fbL), (ffR + fbR));
       }
       // handling prev
@@ -164,9 +165,10 @@ void PPControl(void * ignore){
       prevTargVR = targVR;
       // debugging
 
-      if(count % 10 == 0) printf("TargV: %4.5f\tMeasuredv: %4.5f\n\n", targV, measuredV);
+      // if(count % 10 == 0) printf("TargV: %4.5f\tMeasuredv: %4.5f\n\n", targV, measuredV);
       count++;
-      delay(dT);
+      if(count % 10 == 0) printf("\n");
     }
+    delay(dT);
   }
 }

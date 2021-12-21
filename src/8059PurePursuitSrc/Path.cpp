@@ -101,14 +101,17 @@ void Path::setWps(std::vector<Node> p_wps, double p_w_data, double p_w_smooth, d
 
   enablePP = true;
   printf("Path: \n");
-  for(int i = 0; i < n; i++) debugPoint(i);
+  for(int i = 0; i < n; i++) {
+    debugPoint(i);
+    printf("\n");
+  }
 }
 
 void Path::debugPoint(int i) {
-  printf("Coord: {%.2f, %.2f}\t", smoWps[i].getX(), smoWps[i].getY());
+  printf("{%.2f, %.2f}\t", smoWps[i].getX(), smoWps[i].getY());
   printf("Dist: %.2f\t", dist[i]);
   printf("Curv: %.5f\t", curv[i]);
   printf("MaxV: %.5f\t", maxV[i]);
   printf("TargV: %.5f\t", targV[i]);
-  printf("\n");
+  // printf("\n");
 }
