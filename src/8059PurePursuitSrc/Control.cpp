@@ -9,6 +9,7 @@ Path path;
 
 int closestPointIndex = 0;
 double lastFracIndex = 0;
+double targBearing = 0;
 
 void drive(double l, double r){
   Motor FL (FLPort);
@@ -26,17 +27,44 @@ void resetPP() {
   lastFracIndex = 0;
 }
 
+void baseTurn(double p_bearing) {
+  targBearing = p_bearing*toRad;
+}
+
+void baseTurn(double x, double y) {
+  double turnBearing = atan2(x - position.getX(), y - position.getY())*toDeg;
+  baseTurn(turnBearing);
+  printf("Turn to: %.5fdeg\n", turnBearing*toDeg);
+}
+
+void waitTurn(double cutoff) {
+  while(fabs(targBearing - bearing)*toDeg > TURN_LEEWAY || fabs(measuredVL) > 0.0001 || fabs(measuredVR) > 0.0001) delay(5);
+  printf("I stopped :)\n");
+}
+
 void basePP(std::vector<Node> wps, double p_w_data, double p_w_smooth, double p_lookAhead, bool p_reverse){
   path.setWps(wps, p_w_data, p_w_smooth, p_lookAhead);
   reverse = p_reverse;
 }
 
+void baseMove(double dis) {
+  std::vector<Node> straightPath = {position, position + Node(dis*sin(bearing), dis*cos(bearing))};
+
+  double smooth = 0.75;
+	basePP(straightPath, 1-smooth, smooth, 20, dis < 0);
+}
+
+void baseMove(double x, double y) {
+  baseMove(sqrt(pow(x - position.getX(), 2) + pow(y - position.getY(), 2)));
+}
+
 void waitPP(double cutoff){
-  int start = millis();
+  // int stopTime;
   Node target = path.getSmoWp(path.getN()-1);
-  while(distance(position, target)>=LEEWAY || fabs(measuredV) > 0.0001) delay(5);
+  while((distance(position, target) >= LEEWAY || fabs(measuredV) > 0.0001)) delay(5);
 
   resetPP();
+  targBearing = bearing;
   enablePP = false;
 
   printf("I stopped :)\n");
@@ -124,51 +152,62 @@ void PPControl(void * ignore){
       */
       double targVClosest = reverse ? -path.getTargV(closestPointIndex) : path.getTargV(closestPointIndex);
       // rate limiter
-      // targV = targV + abscap(targVClosest, globalMaxA); //might use v + abscap instead of targV + abscap?
       targV = targVClosest;
+      // targV = targV + abscap(targVClosest, globalMaxA); //might use v + abscap instead of targV + abscap?
       // if(count % 10 == 0) printf("TargV: %.5f, MAXV: %.5f\n", targV, globalMaxV);
       targVL = targV*(2 + moveCurvature*baseWidth)/2;
       targVR = targV*(2 - moveCurvature*baseWidth)/2;
       if(count % 10 == 0) printf("\tMove Curvature: %.5f", moveCurvature*1000);
       // if(count % 10 == 0) printf("TargVL: %.5f\tTargVR: %.5f\n", targVL, targVR);
+    }else {
+      double errorBearing = targBearing - bearing;
+      targVL = abscap(errorBearing*0.049, globalMaxV);
+      targVR = -targVL;
 
-      // ===================================================================================
 
-      // motor controller
-      targAL = (targVL - prevTargVL)/dT;
-      targAR = (targVR - prevTargVR)/dT;
-      // feedforward terms
-      double ffL = kV * targVL + kA * targAL;
-      double ffR = kV * targVR + kA * targAR;
-      // feedback terms
-      double fbL;
-      double fbR;
-
-      if(reverse) {
-        fbL = kP * (targVL - measuredVR);
-        fbR = kP * (targVR - measuredVL);
-      }else {
-        fbL = kP * (targVL - measuredVL);
-        fbR = kP * (targVR - measuredVR);
+      if(count % 10 == 0) {
+        position.print();
+        printf("\tBearing: %.5f\ttargV: %5f", bearing*toDeg, targVL);
       }
-
-      // set power
-      if(reverse) {
-        // if(count % 10 == 0) printf("PowerL: %4.2f\tPowerR: %4.2f\n", (ffR + fbR), (ffL + fbL));
-        drive((ffR + fbR), (ffL + fbL));
-      }else {
-        // if(count % 10 == 0) printf("PowerL: %4.2f\tPowerR: %4.2f\n", (ffL + fbL), (ffR + fbR));
-        drive((ffL + fbL), (ffR + fbR));
-      }
-      // handling prev
-      prevTargVL = targVL;
-      prevTargVR = targVR;
-      // debugging
-
-      // if(count % 10 == 0) printf("TargV: %4.5f\tMeasuredv: %4.5f\n\n", targV, measuredV);
-      count++;
-      if(count % 10 == 0) printf("\n");
     }
+
+    // ===================================================================================
+
+    // motor controller
+    targAL = (targVL - prevTargVL)/dT;
+    targAR = (targVR - prevTargVR)/dT;
+    // feedforward terms
+    double ffL = kV * targVL + kA * targAL;
+    double ffR = kV * targVR + kA * targAR;
+    // feedback terms
+    double fbL;
+    double fbR;
+
+    if(reverse) {
+      fbL = kP * (targVL - measuredVR);
+      fbR = kP * (targVR - measuredVL);
+    }else {
+      fbL = kP * (targVL - measuredVL);
+      fbR = kP * (targVR - measuredVR);
+    }
+
+    // set power
+    if(reverse) {
+      // if(count % 10 == 0) printf("PowerL: %4.2f\tPowerR: %4.2f\n", (ffR + fbR), (ffL + fbL));
+      drive((ffR + fbR), (ffL + fbL));
+    }else {
+      // if(count % 10 == 0) printf("PowerL: %4.2f\tPowerR: %4.2f\n", (ffL + fbL), (ffR + fbR));
+      drive((ffL + fbL), (ffR + fbR));
+    }
+    // handling prev
+    prevTargVL = targVL;
+    prevTargVR = targVR;
+    // debugging
+
+    // if(count % 10 == 0) printf("TargV: %4.5f\tMeasuredv: %4.5f\n\n", targV, measuredV);
+    count++;
+    if(count % 10 == 0) printf("\n");
+
     delay(dT);
   }
 }

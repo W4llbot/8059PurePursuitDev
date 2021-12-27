@@ -57,7 +57,7 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-	std::vector<Node> testPath = {Node(0, 0), Node(0, 12), Node(12, 24), Node(24, 36), Node(24, 48)};
+	std::vector<Node> testPath = {Node(0, 0), Node(0, -10)};
 	std::vector<Node> moveTurnPath = {Node(0, 0), Node(0, 24), Node(48, 48)};
 	std::vector<Node> reverseMoveTurnPath = {Node(48, 48), Node(24, 24), Node(0, 0)};
 	std::vector<Node> straightPath = {Node(0, 0), Node(0, -24), Node(24, -36)};
@@ -69,8 +69,13 @@ void autonomous() {
 
 	delay(2000);
 
-	basePP(reverseMoveTurnPath, 1-smooth, smooth, 20, true);
+	baseTurn(0, 0);
+	waitTurn(10000000);
+
+	baseMove(0, 0);
 	waitPP(100000);
+	//
+	// basePP(reverseMoveTurnPath, 1-smooth, smooth, 20, true);
 }
 
 /**

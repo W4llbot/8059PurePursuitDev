@@ -13,7 +13,7 @@ void posPrintMaster(){
   master.print(2, 0, "%.2f %.2f %.2f", position.getX(), position.getY(), bearing);
 }
 void encdPrintTerminal(){
-  printf("EncdL: %4.1f \t EncdR: %4.1f\n", encdL, encdR);
+  printf("EncdS: %4.1f \t EncdR: %4.1f\n", encdS, encdR);
 }
 
 void Debug(void * ignore) {
